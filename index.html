@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="The Plan">
+<meta name="theme-color" content="#2C3E50">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<title>The Plan</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Mono:wght@400;500&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  :root{
+    --bg:#faf8f5;--hdr:#2C3E50;--hdr2:#34495E;--tx:#2C3E50;--tx2:#6b5e4e;
+    --tx3:#aaa;--brd:#e4ddd2;--ctxbg:#f0ece4;--donebg:#f0ede8;
+    --gold:#D4A030;--green:#5B8C5A;--purple:#6B5B8A;--red:#C0564B;
+    --blue:#3A7CA5;--orange:#D48C2E;--teal:#2D6A4F;--mauve:#7B6B8A;
+    --sf:'Cormorant Garamond',Georgia,serif;
+    --mn:'DM Mono','Courier New',monospace;
+  }
+  body{font-family:var(--sf);background:var(--bg);color:var(--tx);min-height:100vh;min-height:100dvh;overscroll-behavior:none}
+
+  /* Tabs */
+  .tabs{display:flex;background:#fff;border-bottom:1px solid var(--brd);position:sticky;top:0;z-index:100}
+  .tab{flex:1;padding:12px 4px;background:none;border:none;border-bottom:2px solid transparent;font-family:var(--mn);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--tx3);cursor:pointer;transition:all .2s}
+  .tab.on{color:var(--gold);border-bottom-color:var(--gold)}
+
+  /* Header */
+  .hdr{background:linear-gradient(135deg,var(--hdr),var(--hdr2));padding:28px 22px 20px;color:#f0e8d8;position:relative}
+  .hdr::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent,transparent 40px,rgba(255,255,255,.012) 40px,rgba(255,255,255,.012) 41px);pointer-events:none}
+  .nav{display:flex;align-items:center;justify-content:space-between;position:relative;z-index:1}
+  .nbtn{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);color:#f0e8d8;font-size:20px;border-radius:8px;padding:8px 14px;cursor:pointer;font-family:var(--sf);line-height:1;transition:background .15s}
+  .nbtn:active{background:rgba(255,255,255,.2)}
+  .dctr{text-align:center}
+  .dsup{font-size:10px;letter-spacing:3px;text-transform:uppercase;opacity:.5;font-family:var(--mn);margin-bottom:4px}
+  .dmn{font-size:24px;font-weight:400}
+  .dsub{font-size:13px;opacity:.45;margin-top:3px}
+
+  /* Quick day pills */
+  .qpills{display:flex;justify-content:center;gap:6px;margin-top:14px;position:relative;z-index:1}
+  .qpill{font-family:var(--mn);font-size:9px;letter-spacing:1px;padding:5px 12px;border-radius:20px;border:1px solid rgba(255,255,255,.15);background:transparent;color:rgba(240,232,216,.5);cursor:pointer;transition:all .15s;text-transform:uppercase}
+  .qpill:active{background:rgba(255,255,255,.15)}
+  .qpill.on{background:rgba(212,160,48,.25);border-color:rgba(212,160,48,.4);color:var(--gold)}
+
+  .phrow{display:flex;justify-content:center;margin-top:10px;position:relative;z-index:1}
+  .phbdg{font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:4px 12px;border-radius:4px;font-family:var(--mn);font-weight:500}
+  .prsec{margin-top:16px;position:relative;z-index:1}
+  .prmeta{display:flex;justify-content:space-between;font-size:11px;font-family:var(--mn);opacity:.45;margin-bottom:7px}
+  .prtrk{height:4px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden}
+  .prfil{height:100%;border-radius:3px;transition:width .4s cubic-bezier(.4,0,.2,1)}
+  .ctxbar{padding:14px 22px;background:var(--ctxbg);border-bottom:1px solid var(--brd);font-size:13px;color:var(--tx2);font-style:italic;line-height:1.5}
+
+  /* Checklist */
+  .clist{padding:6px 14px 20px}
+  .bhdr{display:flex;align-items:center;gap:8px;padding:16px 8px 6px}
+  .bico{font-size:17px}.blbl{font-size:11px;font-family:var(--mn);letter-spacing:2px;text-transform:uppercase;font-weight:500}
+  .bcnt{font-size:10px;font-family:var(--mn);color:var(--tx3);margin-left:auto}
+
+  .hitm{display:flex;align-items:flex-start;gap:12px;padding:11px 12px;margin-bottom:2px;border-radius:8px;cursor:pointer;transition:background .12s;border-left:3px solid transparent;user-select:none;flex-wrap:wrap}
+  .hitm:active{opacity:.7}.hitm.dn{background:var(--donebg)}.hitm.sp{border-left-style:solid}
+  .chk{width:21px;height:21px;border-radius:5px;border:2px solid #ccc;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;margin-top:2px;transition:all .15s}
+  .htx{font-size:15px;line-height:1.45;color:#333;flex:1;min-width:0;transition:color .15s}
+  .hitm.dn .htx{color:#b0a898;text-decoration:line-through;text-decoration-color:#d0c8b8}
+
+  .xbtn{margin-left:33px;margin-top:2px;padding:4px 10px;border-radius:5px;font-family:var(--mn);font-size:10px;letter-spacing:1px;border:1px solid var(--brd);background:#fff;color:var(--tx2);cursor:pointer;transition:all .15s;user-select:none}
+  .xbtn:hover{background:var(--ctxbg)}.xbtn.opn{background:var(--ctxbg);border-color:#ccc}
+  .xpnl{width:calc(100% - 33px);margin-left:33px;margin-top:6px;padding:12px 14px;background:#fff;border:1px solid var(--brd);border-radius:8px;font-size:13px;line-height:1.6;color:var(--tx2);animation:sld .2s ease}
+  .xpnl .opt{padding:8px 10px;margin:3px 0;border-radius:6px;cursor:default;transition:background .12s;border-left:2px solid transparent}
+  .xpnl .opt:hover{background:var(--ctxbg)}
+  .xpnl .olbl{font-family:var(--mn);font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--tx3);margin-bottom:6px}
+  .xpnl .otx{font-family:var(--sf);font-size:14.5px;color:var(--tx);line-height:1.5}
+  .xpnl .ont{font-size:12px;color:var(--tx3);font-style:italic;margin-top:2px}
+  .xpnl .shuf{display:inline-block;margin-top:10px;padding:5px 12px;border-radius:4px;font-family:var(--mn);font-size:9px;letter-spacing:1px;border:1px solid var(--brd);background:var(--bg);color:var(--tx2);cursor:pointer;transition:all .12s}
+  .xpnl .shuf:hover{background:var(--ctxbg)}
+  @keyframes sld{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+
+  /* Tomorrow preview */
+  .tmrw-peek{margin:4px 14px 20px;padding:16px;background:#fff;border:1px solid var(--brd);border-radius:10px;cursor:pointer;transition:all .15s}
+  .tmrw-peek:active{background:var(--ctxbg)}
+  .tmrw-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+  .tmrw-title{font-family:var(--mn);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--tx3)}
+  .tmrw-arrow{font-size:14px;color:var(--tx3)}
+  .tmrw-items{display:flex;flex-wrap:wrap;gap:6px}
+  .tmrw-chip{font-family:var(--mn);font-size:9px;letter-spacing:0.5px;padding:3px 8px;border-radius:4px;background:var(--ctxbg);color:var(--tx2)}
+  .tmrw-chip.hl{font-weight:500}
+
+  .cmsg{text-align:center;padding:28px 24px;color:var(--green);font-style:italic;font-size:16px;animation:fin .5s ease}
+  .ftr{padding:16px 24px 32px;border-top:1px solid var(--brd);text-align:center}
+  .tbtn{background:var(--hdr);color:#fff;border:none;padding:11px 28px;border-radius:8px;font-size:12px;font-family:var(--mn);letter-spacing:1px;cursor:pointer;margin-bottom:12px}
+  .pdsc{font-size:12px;color:#bbb;font-style:italic;margin-top:10px}
+
+  /* Weekly */
+  .wv{padding:20px 16px 40px}
+  .whdr{font-family:var(--sf);font-size:20px;font-weight:600;color:var(--tx);margin-bottom:4px}
+  .wsub{font-size:12px;color:var(--tx3);font-style:italic;margin-bottom:20px}
+  .wnav{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+  .wnbtn{background:rgba(44,62,80,.06);border:1px solid var(--brd);color:var(--tx);font-size:16px;border-radius:8px;padding:6px 14px;cursor:pointer;font-family:var(--sf)}
+
+  .brow{display:flex;align-items:center;gap:10px;padding:10px 8px;border-bottom:1px solid #f0ece4}
+  .brico{font-size:15px;width:24px;text-align:center}
+  .brnm{font-size:13px;font-family:var(--mn);letter-spacing:1px;flex:1;min-width:0}
+  .brbar{width:100px;height:6px;background:#eee;border-radius:3px;overflow:hidden;flex-shrink:0}
+  .brfil{height:100%;border-radius:3px;transition:width .3s}
+  .brpct{font-size:12px;font-family:var(--mn);width:36px;text-align:right;flex-shrink:0}
+
+  .ddots{display:flex;gap:4px;margin-top:12px;justify-content:center}
+  .ddot{width:36px;text-align:center;cursor:pointer}
+  .ddlbl{font-size:9px;font-family:var(--mn);color:var(--tx3);margin-bottom:4px}
+  .ddcirc{width:28px;height:28px;border-radius:50%;margin:0 auto;display:flex;align-items:center;justify-content:center;font-size:10px;font-family:var(--mn);font-weight:500}
+
+  .stk{margin-top:24px;padding:16px;background:#fff;border:1px solid var(--brd);border-radius:10px}
+  .stktl{font-size:11px;font-family:var(--mn);letter-spacing:2px;text-transform:uppercase;color:var(--tx3);margin-bottom:10px}
+  .stkn{font-size:36px;font-weight:600;color:var(--gold)}
+  .stkl{font-size:13px;color:var(--tx2);margin-top:2px}
+
+  .rfsec{margin-top:24px}
+  .rftl{font-size:11px;font-family:var(--mn);letter-spacing:2px;text-transform:uppercase;color:var(--tx3);margin-bottom:12px}
+  .rfp{font-size:14px;color:var(--tx);margin-bottom:6px;font-weight:500}
+  .rfin{width:100%;border:1px solid var(--brd);border-radius:8px;padding:10px 12px;font-family:var(--sf);font-size:14px;color:var(--tx);resize:vertical;min-height:60px;background:#fff;margin-bottom:14px;transition:border-color .15s}
+  .rfin:focus{outline:none;border-color:var(--gold)}
+
+  .trsec{margin-top:24px}
+  .trtl{font-size:11px;font-family:var(--mn);letter-spacing:2px;text-transform:uppercase;color:var(--tx3);margin-bottom:12px}
+  .trrow{display:flex;align-items:center;gap:6px;margin-bottom:6px}
+  .trwk{font-size:10px;font-family:var(--mn);color:var(--tx3);width:42px;flex-shrink:0}
+  .trbt{flex:1;height:8px;background:#f0ece4;border-radius:4px;overflow:hidden}
+  .trbf{height:100%;border-radius:4px}
+  .trpc{font-size:10px;font-family:var(--mn);width:32px;text-align:right;flex-shrink:0}
+
+  @keyframes fin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  .bgrp{animation:fin .3s ease both}
+  .bgrp:nth-child(2){animation-delay:.03s}.bgrp:nth-child(3){animation-delay:.06s}
+  .bgrp:nth-child(4){animation-delay:.09s}.bgrp:nth-child(5){animation-delay:.12s}
+  .bgrp:nth-child(6){animation-delay:.15s}.bgrp:nth-child(7){animation-delay:.18s}
+  .bgrp:nth-child(8){animation-delay:.21s}.bgrp:nth-child(9){animation-delay:.24s}
+
+  @media(max-width:600px){.hdr{padding:24px 16px 18px}.ctxbar{padding:12px 16px}.clist{padding:6px 8px 20px}.wv{padding:16px 10px 40px}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const DY=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],DS=["Su","Mo","Tu","We","Th","Fr","Sa"],OFC=[3,4],ST=new Date(2026,4,25);
+
+// ── Prompt banks ──
+const PQ=[
+  {q:"What's something you've been thinking about lately that you haven't told me?",n:"Opens space for things left unsaid"},
+  {q:"What's one thing I could do this week that would make you feel really loved?",n:"Direct, actionable, shows you care"},
+  {q:"When did you last feel really happy? Like genuinely, deeply happy?",n:"Focuses on joy, not problems"},
+  {q:"Is there anything you wish we did more of together?",n:"Shows you want to invest in the relationship"},
+  {q:"What's something about our relationship that you're grateful for?",n:"Gratitude builds connection"},
+  {q:"What's been weighing on you lately?",n:"Simple, open, caring"},
+  {q:"If we could go anywhere this weekend with no obligations, where would you want to go?",n:"Light but reveals desires"},
+  {q:"What's something you've wanted to say to me but haven't?",n:"Requires courage from both of you"},
+  {q:"How are you feeling about us right now? Honestly.",n:"Direct check-in on the relationship itself"},
+  {q:"What's a memory of us that always makes you smile?",n:"Reconnects you to your shared history"},
+  {q:"What do you need more of from me right now?",n:"Practical vulnerability"},
+  {q:"What's something you're excited about right now, even if it seems small?",n:"Shows interest in their inner world"},
+  {q:"Do you feel like I really listen to you? What could I do better?",n:"Hard to ask, important to hear"},
+  {q:"What's one thing about yourself you've been working on or thinking about changing?",n:"Invites mutual growth"},
+  {q:"When was the last time you felt truly relaxed? What were you doing?",n:"Helps you understand what they need"},
+  {q:"Is there something we used to do that you miss?",n:"Reconnects to what worked"},
+  {q:"What's something I do that makes you feel safe?",n:"Reinforces positive patterns"},
+  {q:"If you could change one thing about our daily routine, what would it be?",n:"Practical but reveals deeper needs"},
+  {q:"What's something you're proud of that you don't talk about enough?",n:"Celebrates them"},
+  {q:"How can I be a better partner to you this month?",n:"Monthly growth question"},
+  {q:"What's one thing on your mind that has nothing to do with work or responsibilities?",n:"Gets past the surface"},
+  {q:"Do you feel like we have enough fun together?",n:"Important check — 15 years in, fun matters"},
+  {q:"What would your ideal Sunday together look like?",n:"Reveals what quality time means to them"},
+  {q:"Is there a conversation you've been avoiding with me?",n:"Brave question — be ready to listen"},
+  {q:"What's something new you'd like us to try together?",n:"Keeps the relationship growing"},
+];
+const EM=["Anxious — something feels uncertain or unsettled","Content — things feel okay, maybe even good","Frustrated — something isn't going the way you want","Grateful — you noticed something positive","Lonely — even if you're around people","Proud — you did something that mattered","Overwhelmed — too many things pulling at you","Nostalgic — missing how things were","Hopeful — something ahead feels promising","Guilty — you know you should have done something differently","Restless — you have energy but nowhere to put it","Tender — something soft hit you unexpectedly","Defensive — you felt criticized or attacked","Curious — something caught your attention","Numb — you're not sure what you feel","Irritated — small things are getting under your skin","Vulnerable — you feel exposed or uncertain","Calm — your mind is quiet for once","Disconnected — you feel distant from someone or something","Excited — something ahead has energy to it"];
+const JN=[{p:"What went well today? Name three things, even small ones.",c:"Gratitude"},{p:"What emotion showed up strongest today? Where did you feel it in your body?",c:"Awareness"},{p:"How did you show up for your partner today? How could you have done better?",c:"Relationship"},{p:"What did you avoid today? Why?",c:"Honesty"},{p:"What moment today made you feel most alive or engaged?",c:"Presence"},{p:"Did you keep your commitments to yourself today? Which ones slipped?",c:"Accountability"},{p:"What are you grateful for that you usually take for granted?",c:"Gratitude"},{p:"What's one thing you learned today — about yourself, your work, or the world?",c:"Growth"},{p:"How did you handle stress or frustration today?",c:"Awareness"},{p:"What would you do differently if you could redo today?",c:"Reflection"},{p:"Who did you connect with today? How did it feel?",c:"Social"},{p:"What's something you're looking forward to tomorrow?",c:"Optimism"},{p:"Where did you waste time today? What could you have done instead?",c:"Honesty"},{p:"Did you say anything today that you wish you could take back?",c:"Communication"},{p:"Rate your day 1-10 and explain why in one sentence.",c:"Check-in"}];
+const FM=["Hey! Been thinking about you — how's everything going?","What's new with you? We should grab a beer/coffee soon.","Haven't caught up in a while — hope things are good. Let's hang soon?","Saw something that reminded me of you. How are things?","Just checking in — what are you up to this weekend?","Miss hanging out. Want to grab dinner sometime this week/next week?","Hey! How's everything? Feel like it's been forever."];
+const TO=["Walk the Humber Bay Arch Bridge at sunset — bring a drink from a nearby patio","Explore Kensington Market — browse the vintage shops, grab a bite","Hit up a brewery patio on the Esplanade or in the Junction","Walk the Beltline Trail from Mount Pleasant to the Brickworks","Check what's on at TIFF Bell Lightbox — catch a matinee","Explore St. Lawrence Market on a Saturday morning","Walk through the Distillery District — coffee, people-watch","Try a new restaurant on Ossington or Dundas West","Visit the AGO — free Wednesday evenings","Grab a drink at a rooftop bar — Lavelle, Harriet's, or the Broadview Hotel","Bike along the Martin Goodman Trail to the Scarborough Bluffs","Check out a live comedy show at Comedy Bar or Bad Dog Theatre","Go to a Blue Jays game — the atmosphere is always great","Explore a neighbourhood you've never walked — Corso Italia, Roncesvalles, Little India","Pick a random streetcar route and ride it end to end"];
+const RC=[{m:"Cacio e Pepe",n:"Deceptively simple — master the emulsion. Pecorino, pepper, pasta water."},{m:"Thai Green Curry from scratch",n:"Make the paste yourself. Mortar and pestle if ambitious."},{m:"Shakshuka",n:"Perfect weekend brunch. Crusty bread mandatory."},{m:"Homemade Ramen",n:"Start the broth a day ahead. Tare, broth, toppings."},{m:"Beef Bourguignon",n:"Classic slow braise. Julia Child's recipe is still the one."},{m:"Fish Tacos with Chipotle Crema",n:"Beer-battered cod, pickled onions, lime. Summer on a plate."},{m:"Risotto ai Funghi",n:"Patience is the only ingredient that matters."},{m:"Korean Bibimbap",n:"All about the prep — get every component ready, then assemble."},{m:"Homemade Pasta",n:"Flour, eggs, time. Once you make fresh pasta, dried never feels the same."},{m:"Chicken Tikka Masala",n:"Marinate overnight. Char the chicken properly."},{m:"Crispy Duck Confit",n:"Salt-cure 24hrs, slow-cook in fat, crisp the skin."},{m:"Miso-Glazed Black Cod",n:"Nobu's classic. Marinate 2-3 days for best results."}];
+const LN=[{t:"Build a dashboard with Claude + Artifacts",n:"Prototype analytics dashboards with AI"},{t:"Learn SQL window functions deeply",n:"PARTITION BY, ROW_NUMBER, LAG/LEAD"},{t:"Explore dbt (data build tool)",n:"Industry standard for analytics engineering"},{t:"Build a RAG pipeline for internal docs",n:"Practical AI for enterprise analytics"},{t:"Learn about LLM evaluation frameworks",n:"Measuring if an AI solution actually works"},{t:"Experiment with Claude's API for data analysis",n:"Send data to Claude, get structured insights"},{t:"Study a Kaggle competition solution",n:"Read a top notebook, learn feature engineering"},{t:"Learn about vector databases",n:"Infrastructure behind semantic search and AI memory"},{t:"Build an automated report with Python + AI",n:"Replace a manual weekly report with automation"},{t:"Read about data mesh vs data warehouse",n:"Where analytics infrastructure is heading"},{t:"Explore Apache Superset or Evidence.dev",n:"Open-source BI beyond Tableau/Looker"},{t:"Learn prompt engineering for analytics",n:"Chain-of-thought, few-shot, structured output"}];
+const CK=[{m:"Negroni",n:"Equal parts gin, Campari, sweet vermouth. Stir. Orange peel."},{m:"Old Fashioned",n:"Bourbon, sugar, Angostura, orange peel. Master this first."},{m:"Daiquiri (proper)",n:"Rum, lime, simple syrup. Shaken hard. Elegant."},{m:"Manhattan",n:"Rye, sweet vermouth, Angostura. Stirred. Cherry."},{m:"Whiskey Sour",n:"Bourbon, lemon, simple syrup, optional egg white."},{m:"Espresso Martini",n:"Vodka, Kahlua, fresh espresso. Shake hard for crema."},{m:"Aperol Spritz",n:"Aperol, prosecco, soda. The patio drink."},{m:"Margarita (classic)",n:"Tequila, Cointreau, lime. Salt rim. No mix."},{m:"Paper Plane",n:"Equal parts bourbon, Aperol, Amaro Nonino, lemon."},{m:"French 75",n:"Gin, lemon, simple syrup, topped with champagne."}];
+
+const HB=[
+  {b:"Morning",cl:"#D4A030",ic:"☀️",items:[{t:"Wake up at 6:30am",d:"all"},{t:"No phone for 30 minutes",d:"all"},{t:"Water, stretch, 10 min reading or journaling",d:"all"}]},
+  {b:"Relationship",cl:"#D4A030",ic:"💛",items:[{t:"Ask your partner one real question tonight",d:"all",ex:{tp:"pq",lb:"Show me questions"}},{t:"No phone during quality time",d:"all"},{t:"Name one emotion out loud today",d:"all",ex:{tp:"em",lb:"Help me name it"}},{t:"Date night tonight — no phones, be present",d:[5],sp:1}]},
+  {b:"Social",cl:"#5B8C5A",ic:"🤝",items:[{t:"Respond to any pending messages (24hr rule)",d:"all"},{t:"Reach out to one friend proactively",d:[1,3,5],ex:{tp:"fm",lb:"Example messages"}},{t:"Organize something with friends this week",d:[1]}]},
+  {b:"Mind & Culture",cl:"#6B5B8A",ic:"📖",items:[{t:"Read for 30 minutes (New Yorker, book)",d:"all"},{t:"No YouTube Shorts or Twitter doom-scrolling",d:"all"},{t:"Watch a full movie tonight",d:[6]},{t:"Explore a new album start to finish",d:[0,4]}]},
+  {b:"Digital Wellness",cl:"#C0564B",ic:"📵",items:[{t:"Stay within screen time limits (30m Twitter / 20m YT)",d:"all"},{t:"Phone in another room after 9pm",d:"all"}]},
+  {b:"Physical",cl:"#3A7CA5",ic:"💪",items:[{t:"Workout today (3-4x/week goal)",d:[1,2,4,6]},{t:"Walk commute — 7k steps each way",d:[3,4]}]},
+  {b:"Hobbies",cl:"#D48C2E",ic:"♟️",items:[{t:"Chess: puzzle or game (10 min)",d:"all"},{t:"Try a new recipe this week",d:[0,6],ex:{tp:"rc",lb:"Recipe ideas"}},{t:"Be spontaneous — say yes to something unexpected",d:[5,6],ex:{tp:"to",lb:"Ideas in Toronto"}},{t:"Cocktail project: learn a new classic",d:[5],ex:{tp:"ck",lb:"Cocktail ideas"}}]},
+  {b:"Career",cl:"#2D6A4F",ic:"📊",items:[{t:"Learning block: 4:30–5:00pm (AI, analytics, tools)",d:[1,2,3,4,5],ex:{tp:"ln",lb:"Today's topic"}},{t:"Phone in drawer during focus time at work",d:[1,2,3,4,5]},{t:"Identify one problem and propose a solution",d:[2,4]},{t:"Write or share something you learned",d:[3]}]},
+  {b:"Evening",cl:"#7B6B8A",ic:"🌙",items:[{t:"2-minute rule: handle any small chores immediately",d:"all"},{t:"10-minute kitchen/living room tidy",d:"all"},{t:"Floss, wash face, skincare routine",d:"all"},{t:"Journal 5 min before bed",d:"all",ex:{tp:"jn",lb:"Tonight's prompt"}},{t:"Weekly reflection (see Review tab)",d:[0]}]},
+];
+
+// ── State ──
+let cD=new Date(),aT="daily",chk={},rf={},ex={},pS={},wO=0;
+try{let s=localStorage.getItem("tp-chk");if(s)chk=JSON.parse(s)}catch(e){}
+try{let s=localStorage.getItem("tp-rf");if(s)rf=JSON.parse(s)}catch(e){}
+function sv(){try{localStorage.setItem("tp-chk",JSON.stringify(chk))}catch(e){}try{localStorage.setItem("tp-rf",JSON.stringify(rf))}catch(e){}}
+
+function dk(d){return d.getFullYear()+"-"+d.getMonth()+"-"+d.getDate()}
+function isTd(d){let n=new Date();return d.toDateString()===n.toDateString()}
+function fmt(d){return d.toLocaleDateString("en-CA",{month:"long",day:"numeric",year:"numeric"})}
+function fmtS(d){return d.toLocaleDateString("en-CA",{month:"short",day:"numeric"})}
+function tmrwDate(d){let t=new Date(d);t.setDate(t.getDate()+1);return t}
+function ystrDate(d){let t=new Date(d);t.setDate(t.getDate()-1);return t}
+
+function getI(di){let r=[];for(let b of HB){let it=b.items.filter(i=>i.d==="all"||i.d.includes(di));if(it.length)r.push({...b,items:it})}return r}
+
+function getCtx(di){
+  if(OFC.includes(di))return"🏢 Office day — walk commute, deep focus, learning block at 4:30";
+  if(di===5)return"🎉 Friday — date night tonight. Be present. Be romantic.";
+  if(di===0||di===6)return"☕ Weekend — recharge, explore, be spontaneous. Stay consistent on habits.";
+  return"🏠 Remote day — protect your morning routine and focus time."
+}
+function getPh(d){let w=Math.floor((d-ST)/(7*864e5));if(w<0)return{n:1,nm:"Foundation",c:"#D4A030",ds:"Small wins, big momentum."};if(w<2)return{n:1,nm:"Foundation",c:"#D4A030",ds:"Small wins, big momentum."};if(w<6)return{n:2,nm:"Building",c:"#5B8C5A",ds:"Layer in new habits one at a time."};if(w<12)return{n:3,nm:"Deepening",c:"#6B5B8A",ds:"Go deeper on what matters most."};return{n:4,nm:"Sustaining",c:"#3A7CA5",ds:"Maintain momentum. Reflect and adjust."}}
+
+function sP(arr,seed,cnt){let h=0;for(let i=0;i<seed.length;i++){h=((h<<5)-h)+seed.charCodeAt(i);h|=0}let idx=[];for(let i=0;i<cnt&&i<arr.length;i++){let x=Math.abs((h*(i+1)*2654435761)%arr.length),tr=0;while(idx.includes(x)&&tr<arr.length){x=(x+1)%arr.length;tr++}idx.push(x)}return idx.map(i=>arr[i])}
+function shuf(tp){let k="s-"+tp+"-"+dk(cD);pS[k]=(pS[k]||0)+1;render()}
+function gSd(tp){let k="s-"+tp+"-"+dk(cD);return dk(cD)+"-"+(pS[k]||0)}
+
+function exC(e,cl){
+  let sd=gSd(e.tp),h="";
+  const mp={
+    pq:()=>{let p=sP(PQ,sd,3);h+=`<div class="olbl">Tonight's options — pick one that feels right:</div>`;p.forEach(x=>{h+=`<div class="opt" style="border-left-color:${cl}"><div class="otx">"${x.q}"</div><div class="ont">${x.n}</div></div>`});h+=`<button class="shuf" onclick="event.stopPropagation();shuf('pq')">↻ Different questions</button>`},
+    em:()=>{let p=sP(EM,sd,5);h+=`<div class="olbl">Which of these resonates today?</div>`;p.forEach(x=>{h+=`<div class="opt" style="border-left-color:${cl}"><div class="otx">${x}</div></div>`});h+=`<button class="shuf" onclick="event.stopPropagation();shuf('em')">↻ Show different</button>`},
+    jn:()=>{let p=sP(JN,sd,2);h+=`<div class="olbl">Tonight's journal prompt:</div>`;p.forEach(x=>{h+=`<div class="opt" style="border-left-color:${cl}"><div class="otx">${x.p}</div><div class="ont">${x.c}</div></div>`});h+=`<button class="shuf" onclick="event.stopPropagation();shuf('jn')">↻ Different prompt</button>`},
+    fm:()=>{let p=sP(FM,sd,3);h+=`<div class="olbl">Copy-paste or adapt — don't overthink it:</div>`;p.forEach(x=>{h+=`<div class="opt" style="border-left-color:${cl}"><div class="otx">"${x}"</div></div>`});h+=`<button class="shuf" onclick="event.stopPropagation();shuf('fm')">↻ Different messages</button>`},
+    to:()=>{let p=sP(TO,sd,3);h+=`<div class="olbl">Toronto ideas for today:</div>`;p.forEach(x=>{h+=`<div class="opt" style="border-left-color:${cl}"><div class="otx">${x}</div></div>`});h+=`<button class="shuf" onclick="event.stopPropagation();shuf('to')">↻ Different ideas</button>`},
+    rc:()=>{let p=sP(RC,sd,3);h+=`<div class="olbl">This week's recipe challenge:</div>`;p.forEach(x=>{h+=`<div class="opt" style="border-left-color:${cl}"><div class="otx">${x.m}</div><div class="ont">${x.n}</div></div>`});h+=`<button class="shuf" onclick="event.stopPropagation();shuf('rc')">↻ Different recipes</button>`},
+    ln:()=>{let p=sP(LN,sd,2);h+=`<div class="olbl">Today's 4:30pm learning focus:</div>`;p.forEach(x=>{h+=`<div class="opt" style="border-left-color:${cl}"><div class="otx">${x.t}</div><div class="ont">${x.n}</div></div>`});h+=`<button class="shuf" onclick="event.stopPropagation();shuf('ln')">↻ Different topic</button>`},
+    ck:()=>{let p=sP(CK,sd,2);h+=`<div class="olbl">This month's cocktail to master:</div>`;p.forEach(x=>{h+=`<div class="opt" style="border-left-color:${cl}"><div class="otx">${x.m}</div><div class="ont">${x.n}</div></div>`});h+=`<button class="shuf" onclick="event.stopPropagation();shuf('ck')">↻ Different cocktail</button>`},
+  };
+  if(mp[e.tp])mp[e.tp]();
+  return h;
+}
+
+function gDS(d){let di=d.getDay(),bs=getI(di),k=dk(d),tot=0,dn=0,byB={};for(let b of bs){let bt=0,bd=0;for(let i of b.items){tot++;bt++;if(chk[k+":"+i.t]){dn++;bd++}}byB[b.b]={t:bt,d:bd}}return{tot,dn,pct:tot?Math.round(dn/tot*100):0,byB}}
+function gWD(o){let n=new Date(),m=new Date(n);m.setDate(n.getDate()-n.getDay()+1+(o*7));let ds=[];for(let i=0;i<7;i++){let d=new Date(m);d.setDate(m.getDate()+i);ds.push(d)}return ds}
+function gStrk(){let s=0,d=new Date();if(gDS(d).pct<100)d.setDate(d.getDate()-1);for(let i=0;i<365;i++){let st=gDS(d);if(st.tot===0){d.setDate(d.getDate()-1);continue}if(st.pct>=70)s++;else break;d.setDate(d.getDate()-1)}return s}
+
+// ── Tomorrow preview items ──
+function tmrwPreview(){
+  let td=tmrwDate(cD),di=td.getDay(),bs=getI(di);
+  let specials=[];
+  for(let b of bs)for(let it of b.items){if(it.sp)specials.push({t:it.t,cl:b.cl,ic:b.ic})}
+  // Show context + count + any special items
+  let dayName=DY[di];
+  let isOfc=OFC.includes(di);
+  let total=bs.reduce((s,b)=>s+b.items.length,0);
+  let h=`<div class="tmrw-peek" onclick="cD=new Date(${td.getTime()});render()">
+    <div class="tmrw-hdr"><div class="tmrw-title">Tomorrow · ${dayName}</div><div class="tmrw-arrow">→</div></div>
+    <div class="tmrw-items">
+      <span class="tmrw-chip">${total} habits</span>
+      ${isOfc?'<span class="tmrw-chip">🏢 Office</span>':''}
+      ${di===5?'<span class="tmrw-chip hl" style="background:#D4A03018;color:#D4A030">💛 Date night</span>':''}
+      ${di===0||di===6?'<span class="tmrw-chip">☕ Weekend</span>':''}
+      ${di===6?'<span class="tmrw-chip">🎬 Movie night</span>':''}`;
+  // Show unique items for tomorrow
+  let uniq=[];
+  for(let b of bs)for(let it of b.items){if(it.d!=="all"&&!uniq.includes(it.t))uniq.push(it.t)}
+  uniq.slice(0,3).forEach(u=>{h+=`<span class="tmrw-chip">${u.length>40?u.slice(0,38)+'…':u}</span>`});
+  h+=`</div></div>`;
+  return h;
+}
+
+// ── Render: Daily ──
+function rD(){
+  let di=cD.getDay(),bs=getI(di),key=dk(cD),ph=getPh(cD),ctx=getCtx(di),td=isTd(cD);
+  let tot=0,dn=0;for(let b of bs)for(let i of b.items){tot++;if(chk[key+":"+i.t])dn++}
+  let pct=tot?Math.round(dn/tot*100):0;
+
+  let tmrw=tmrwDate(cD),ystr=ystrDate(cD);
+  let tdPill=td,tmrwPill=isTd(ystr),ystrPill=isTd(tmrw); // which pill is "active"
+
+  let h=`<div class="hdr"><div class="nav">
+    <button class="nbtn" onclick="goD(-1)">‹</button>
+    <div class="dctr"><div class="dsup">${td?"Today":DY[di]}</div><div class="dmn">${td?DY[di]:fmt(cD)}</div>${td?`<div class="dsub">${fmt(cD)}</div>`:""}</div>
+    <button class="nbtn" onclick="goD(1)">›</button></div>
+    <div class="qpills">
+      <button class="qpill${isTd(ystrDate(cD))?" on":""}" onclick="cD=ystrDate(cD);render()">Yesterday</button>
+      <button class="qpill${td?" on":""}" onclick="goTd()">Today</button>
+      <button class="qpill${isTd(tmrwDate(cD))?" on":""}" onclick="cD=tmrwDate(cD);render()">Tomorrow</button>
+    </div>
+    <div class="phrow"><span class="phbdg" style="background:${ph.c}35;color:${ph.c}">Phase ${ph.n}: ${ph.nm}</span></div>
+    <div class="prsec"><div class="prmeta"><span>${dn}/${tot} completed</span><span>${pct}%</span></div>
+    <div class="prtrk"><div class="prfil" style="width:${pct}%;background:${pct===100?'linear-gradient(90deg,#5B8C5A,#7ab879)':'linear-gradient(90deg,#D4A030,#e8c060)'}"></div></div></div></div>
+    <div class="ctxbar">${ctx}</div><div class="clist">`;
+
+  for(let b of bs){
+    let bd=b.items.filter(i=>chk[key+":"+i.t]).length;
+    h+=`<div class="bgrp"><div class="bhdr"><span class="bico">${b.ic}</span><span class="blbl" style="color:${b.cl}">${b.b}</span><span class="bcnt">${bd}/${b.items.length}</span></div>`;
+    for(let it of b.items){
+      let ik=key+":"+it.t,isDn=!!chk[ik],eid=ik+":ex",isEx=ex[eid];
+      let spSt=it.sp?`border-left-color:${b.cl};background:${b.cl}08;`:"";
+      h+=`<div class="hitm${isDn?" dn":""}${it.sp?" sp":""}" style="${spSt}">
+        <div class="chk${isDn?" checked":""}" style="${isDn?`border-color:${b.cl};background:${b.cl}20;color:${b.cl}`:""}" onclick="tog('${ik.replace(/'/g,"\\'")}')">${isDn?"✓":""}</div>
+        <div class="htx" onclick="tog('${ik.replace(/'/g,"\\'")}')">${it.t}</div>`;
+      if(it.ex){h+=`<button class="xbtn${isEx?" opn":""}" onclick="event.stopPropagation();tEx('${eid.replace(/'/g,"\\'")}')">${isEx?"▾ Hide":"▸ "+it.ex.lb}</button>`;if(isEx)h+=`<div class="xpnl" onclick="event.stopPropagation()">${exC(it.ex,b.cl)}</div>`}
+      h+=`</div>`;
+    }
+    h+=`</div>`;
+  }
+  h+=`</div>`;
+
+  if(pct===100)h+=`<div class="cmsg">All done today. You showed up. That matters. 💛</div>`;
+
+  // Tomorrow preview (only show when viewing today or past)
+  if(td)h+=tmrwPreview();
+
+  h+=`<div class="ftr">${!td?`<button class="tbtn" onclick="goTd()">← BACK TO TODAY</button>`:""}<div class="pdsc">${ph.ds}</div></div>`;
+  return h;
+}
+
+// ── Render: Weekly ──
+function rW(){
+  let ds=gWD(wO),strk=gStrk(),dayS=ds.map(d=>gDS(d)),bT={};
+  for(let s of dayS)for(let[bn,bs] of Object.entries(s.byB)){if(!bT[bn])bT[bn]={t:0,d:0};bT[bn].t+=bs.t;bT[bn].d+=bs.d}
+  let wTot=dayS.reduce((s,d)=>s+d.tot,0),wDn=dayS.reduce((s,d)=>s+d.dn,0),wP=wTot?Math.round(wDn/wTot*100):0;
+  let bM={};for(let b of HB)bM[b.b]={cl:b.cl,ic:b.ic};
+
+  let h=`<div class="wv"><div class="wnav">
+    <button class="wnbtn" onclick="wO--;render()">‹</button>
+    <div><div class="whdr">Week of ${fmtS(ds[0])}</div><div class="wsub">${fmtS(ds[0])} – ${fmtS(ds[6])}, ${ds[6].getFullYear()}</div></div>
+    <button class="wnbtn" onclick="wO++;render()">›</button></div>`;
+
+  h+=`<div class="ddots">`;ds.forEach(d=>{let s=gDS(d),c=s.pct>=80?"#5B8C5A":s.pct>=50?"#D4A030":s.pct>0?"#C0564B":"#eee",tc=s.pct>0?"#fff":"#ccc",td=isTd(d);
+    h+=`<div class="ddot" onclick="cD=new Date(${d.getTime()});aT='daily';render()"><div class="ddlbl">${DS[d.getDay()]}</div><div class="ddcirc" style="background:${c};color:${tc};${td?'box-shadow:0 0 0 2px #D4A030;':''}">${s.pct>0?s.pct+"%":"-"}</div></div>`});
+  h+=`</div>`;
+
+  h+=`<div style="margin-top:20px;padding:14px 0;border-bottom:1px solid #f0ece4"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span style="font-size:13px;font-family:var(--mn);color:var(--tx2)">Overall</span><span style="font-size:16px;font-family:var(--mn);font-weight:500;color:${wP>=70?'#5B8C5A':'#D4A030'}">${wP}%</span></div><div class="prtrk" style="background:#f0ece4;height:6px"><div class="prfil" style="width:${wP}%;background:${wP>=70?'linear-gradient(90deg,#5B8C5A,#7ab879)':'linear-gradient(90deg,#D4A030,#e8c060)'}"></div></div></div>`;
+
+  h+=`<div style="margin-top:16px">`;
+  for(let[bn,bs] of Object.entries(bT)){let m=bM[bn]||{cl:"#999",ic:"·"},p=bs.t?Math.round(bs.d/bs.t*100):0;
+    h+=`<div class="brow"><span class="brico">${m.ic}</span><span class="brnm" style="color:${m.cl}">${bn}</span><div class="brbar"><div class="brfil" style="width:${p}%;background:${m.cl}"></div></div><span class="brpct" style="color:${m.cl}">${p}%</span></div>`}
+  h+=`</div>`;
+
+  h+=`<div class="stk"><div class="stktl">Current Streak (70%+ days)</div><div style="display:flex;align-items:baseline;gap:8px"><span class="stkn">${strk}</span><span class="stkl">${strk===1?"day":"days"} in a row</span></div></div>`;
+
+  h+=`<div class="trsec"><div class="trtl">Weekly Trend</div>`;
+  for(let wo=wO-7;wo<=wO;wo++){let wd=gWD(wo),ws=wd.map(d=>gDS(d)),wt=ws.reduce((s,d)=>s+d.tot,0),wdn=ws.reduce((s,d)=>s+d.dn,0),wp=wt?Math.round(wdn/wt*100):0;if(wt===0)continue;let lb=fmtS(wd[0]),ic=wo===wO;
+    h+=`<div class="trrow"><span class="trwk">${lb}</span><div class="trbt"><div class="trbf" style="width:${wp}%;background:${ic?'var(--gold)':'#ccc'}"></div></div><span class="trpc" style="color:${ic?'var(--gold)':'var(--tx3)'}">${wp}%</span></div>`}
+  h+=`</div>`;
+
+  let wk="wk-"+dk(ds[0]),rp=["What went well this week?","What did I struggle with?","How did I show up for my partner?","What will I focus on next week?","What am I most proud of?"];
+  h+=`<div class="rfsec"><div class="rftl">Weekly Reflection</div>`;
+  rp.forEach((p,i)=>{let rk=wk+"-"+i,v=rf[rk]||"";h+=`<div class="rfp">${p}</div><textarea class="rfin" placeholder="Write here..." oninput="sRf('${rk}',this.value)">${v}</textarea>`});
+  h+=`</div></div>`;
+  return h;
+}
+
+function render(){
+  let h=`<div class="tabs"><button class="tab${aT==='daily'?' on':''}" onclick="aT='daily';render()">Today</button><button class="tab${aT==='weekly'?' on':''}" onclick="aT='weekly';render()">Weekly Review</button></div>`;
+  h+=aT==='daily'?rD():rW();
+  document.getElementById("app").innerHTML=h;
+}
+
+function goD(o){cD=new Date(cD);cD.setDate(cD.getDate()+o);render()}
+function goTd(){cD=new Date();render()}
+function tog(k){chk[k]=!chk[k];if(!chk[k])delete chk[k];sv();render()}
+function tEx(k){ex[k]=!ex[k];render()}
+function sRf(k,v){rf[k]=v;sv()}
+function tmrwDate(d){let t=new Date(d);t.setDate(t.getDate()+1);return t}
+function ystrDate(d){let t=new Date(d);t.setDate(t.getDate()-1);return t}
+
+let tsx=0,tsy=0;
+document.addEventListener("touchstart",e=>{tsx=e.touches[0].clientX;tsy=e.touches[0].clientY},{passive:true});
+document.addEventListener("touchend",e=>{let dx=e.changedTouches[0].clientX-tsx,dy=e.changedTouches[0].clientY-tsy;if(Math.abs(dx)>80&&Math.abs(dx)>Math.abs(dy)*1.5){if(aT==="daily"){dx>0?goD(-1):goD(1)}else{dx>0?wO--:wO++;render()}}},{passive:true});
+document.addEventListener("keydown",e=>{if(e.target.tagName==="TEXTAREA")return;if(e.key==="ArrowLeft"){aT==="daily"?goD(-1):(wO--,render())}if(e.key==="ArrowRight"){aT==="daily"?goD(1):(wO++,render())}});
+
+// ── PWA Service Worker ──
+if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(()=>{})}
+
+render();
+</script>
+</body>
+</html>
