@@ -187,7 +187,7 @@ const HB=[
   {b:"Social",cl:"#5B8C5A",ic:"🤝",items:[{t:"Respond to any pending messages (24hr rule)",d:"all"},{t:"Reach out to one friend proactively",d:[1,3,5],ex:{tp:"fm",lb:"Example messages"}},{t:"Organize something with friends this week",d:[1]}]},
   {b:"Mind & Culture",cl:"#6B5B8A",ic:"📖",items:[{t:"Read for 30 minutes (New Yorker, book)",d:"all"},{t:"No YouTube Shorts or Twitter doom-scrolling",d:"all"},{t:"Watch a full movie tonight",d:[6]},{t:"Explore a new album start to finish",d:[0,4]}]},
   {b:"Digital Wellness",cl:"#C0564B",ic:"📵",items:[{t:"Stay within screen time limits (30m Twitter / 20m YT)",d:"all"},{t:"Phone in another room after 9pm",d:"all"}]},
-  {b:"Physical",cl:"#3A7CA5",ic:"💪",items:[{t:"Workout today (3-4x/week goal)",d:[1,2,4,6]},{t:"Walk commute — 7k steps each way",d:[3,4]}]},
+  {b:"Physical",cl:"#3A7CA5",ic:"💪",items:[{t:"Outdoor run",d:[1,6],s:"warm"},{t:"Treadmill run (indoor)",d:[1,6],s:"cold"},{t:"Gym — weight training",d:[2,4]},{t:"Walk commute — 7k steps each way",d:[3,4]},{t:"Check Fitbit stats — hit your goals",d:"all"}]},
   {b:"Hobbies",cl:"#D48C2E",ic:"♟️",items:[{t:"Chess: puzzle or game (10 min)",d:"all"},{t:"Try a new recipe this week",d:[0,6],ex:{tp:"rc",lb:"Recipe ideas"}},{t:"Be spontaneous — say yes to something unexpected",d:[5,6],ex:{tp:"to",lb:"Ideas in Toronto"}},{t:"Cocktail project: learn a new classic",d:[5],ex:{tp:"ck",lb:"Cocktail ideas"}}]},
   {b:"Career",cl:"#2D6A4F",ic:"📊",items:[{t:"Learning block: 4:30–5:00pm (AI, analytics, tools)",d:[1,2,3,4,5],ex:{tp:"ln",lb:"Today's topic"}},{t:"Phone in drawer during focus time at work",d:[1,2,3,4,5]},{t:"Identify one problem and propose a solution",d:[2,4]},{t:"Write or share something you learned",d:[3]}]},
   {b:"Evening",cl:"#7B6B8A",ic:"🌙",items:[{t:"2-minute rule: handle any small chores immediately",d:"all"},{t:"10-minute kitchen/living room tidy",d:"all"},{t:"Floss, wash face, skincare routine",d:"all"},{t:"Journal 5 min before bed",d:"all",ex:{tp:"jn",lb:"Tonight's prompt"}},{t:"Weekly reflection (see Review tab)",d:[0]}]},
@@ -206,7 +206,7 @@ function fmtS(d){return d.toLocaleDateString("en-CA",{month:"short",day:"numeric
 function tmrwDate(d){let t=new Date(d);t.setDate(t.getDate()+1);return t}
 function ystrDate(d){let t=new Date(d);t.setDate(t.getDate()-1);return t}
 
-function getI(di){let r=[];for(let b of HB){let it=b.items.filter(i=>i.d==="all"||i.d.includes(di));if(it.length)r.push({...b,items:it})}return r}
+function getI(di){let m=cD.getMonth(),warm=m>=3&&m<=9,r=[];for(let b of HB){let it=b.items.filter(i=>{if(i.s&&((i.s==="warm"&&!warm)||(i.s==="cold"&&warm)))return false;return i.d==="all"||i.d.includes(di)});if(it.length)r.push({...b,items:it})}return r}
 
 function getCtx(di){
   if(OFC.includes(di))return"🏢 Office day — walk commute, deep focus, learning block at 4:30";
