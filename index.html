@@ -274,18 +274,24 @@ function gWD(o){let n=new Date(),m=new Date(n);m.setDate(n.getDate()-n.getDay()+
 function gStrk(){let s=0,d=new Date();if(gDS(d).pct<100)d.setDate(d.getDate()-1);for(let i=0;i<365;i++){let st=gDS(d);if(st.tot===0){d.setDate(d.getDate()-1);continue}if(st.pct>=70)s++;else break;d.setDate(d.getDate()-1)}return s}
 
 // ── Gemini AI Briefing ──
+const MODELS=["gemini-2.0-flash-lite","gemini-2.0-flash","gemini-1.5-flash"];
 async function callGemini(prompt){
   const key=localStorage.getItem("tp-gemini-key");
   if(!key)return null;
-  try{
-    const res=await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key="+encodeURIComponent(key),{
-      method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{maxOutputTokens:200,temperature:1.0}})
-    });
-    if(!res.ok)return null;
-    const data=await res.json();
-    return data.candidates?.[0]?.content?.parts?.[0]?.text||null;
-  }catch(e){return null}
+  for(const model of MODELS){
+    try{
+      const res=await fetch("https://generativelanguage.googleapis.com/v1beta/models/"+model+":generateContent?key="+encodeURIComponent(key),{
+        method:"POST",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{maxOutputTokens:200,temperature:1.0}})
+      });
+      if(res.status===429){continue}
+      if(!res.ok){continue}
+      const data=await res.json();
+      const text=data.candidates?.[0]?.content?.parts?.[0]?.text;
+      if(text)return text;
+    }catch(e){continue}
+  }
+  return null;
 }
 
 function getBriefingCtx(d){
@@ -372,7 +378,7 @@ async function loadBriefing(){
     localStorage.setItem(cacheKey,clean);
     el.innerHTML=`<div class="br-text">${clean}</div><div class="br-meta"><span class="br-label">${period==="am"?"Morning briefing":"Evening check-in"}</span><button class="br-refresh" onclick="refreshBriefing()">Refresh</button></div>`;
   }else{
-    el.innerHTML=`<div class="br-text" style="color:var(--tx3)">${getCtx(cD.getDay())}</div><div class="br-meta"><span class="br-label">Couldn't reach AI — showing default</span><button class="br-refresh" onclick="refreshBriefing()">Retry</button></div>`;
+    el.innerHTML=`<div class="br-text" style="color:var(--tx3)">${getCtx(cD.getDay())}</div><div class="br-meta"><span class="br-label">AI rate limited — try again in a minute</span><button class="br-refresh" onclick="refreshBriefing()">Retry</button></div>`;
   }
 }
 
