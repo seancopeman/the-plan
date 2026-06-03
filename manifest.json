@@ -2,7 +2,7 @@
   "name": "The Plan — Daily Briefing",
   "short_name": "The Plan",
   "description": "Daily self-improvement tracker and briefing",
-  "start_url": "/",
+  "start_url": ".",
   "display": "standalone",
   "background_color": "#2C3E50",
   "theme_color": "#2C3E50",
