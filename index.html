@@ -60,6 +60,8 @@
   .br-refresh{background:none;border:1px solid var(--brd);border-radius:4px;padding:3px 8px;font-family:var(--mn);font-size:9px;letter-spacing:1px;color:var(--tx3);cursor:pointer;transition:all .15s}
   .br-refresh:active{background:var(--ctxbg)}
   .br-loading{font-family:var(--mn);font-size:12px;color:var(--tx3);font-style:italic}
+  .br-pull{text-align:center;font-family:var(--mn);font-size:9px;letter-spacing:1px;color:var(--tx3);padding:0;max-height:0;overflow:hidden;transition:max-height .2s,padding .2s}
+  .br-pull.show{max-height:30px;padding:6px 0 2px}
   .br-setup{font-size:14px;color:var(--tx2);line-height:1.6}
   .br-setup-btn{display:inline-block;margin-top:8px;padding:6px 14px;border-radius:6px;font-family:var(--mn);font-size:10px;letter-spacing:1px;border:1px solid var(--gold);background:rgba(212,160,48,.08);color:var(--gold);cursor:pointer}
 
@@ -77,11 +79,14 @@
   .settings-cancel{background:var(--ctxbg);color:var(--tx2)}
   @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 
-  /* Section dividers */
-  .half-hdr{display:flex;align-items:center;gap:10px;padding:14px 22px 6px;margin-top:4px}
+  /* Section dividers — sticky */
+  .half-hdr{display:flex;align-items:center;gap:10px;padding:14px 22px 6px;margin-top:4px;position:sticky;top:37px;z-index:50;background:var(--bg)}
   .half-line{flex:1;height:1px;background:var(--brd)}
   .half-label{font-family:var(--mn);font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--tx3);white-space:nowrap}
   .half-stat{font-family:var(--mn);font-size:9px;color:var(--tx3)}
+
+  /* Section complete */
+  .half-done{text-align:center;padding:10px 22px 6px;font-size:13px;color:var(--green);font-style:italic;animation:fin .5s ease}
 
   /* Checklist */
   .clist{padding:6px 14px 20px}
@@ -280,9 +285,11 @@ async function callGemini(prompt){
   if(!key)return null;
   for(const model of MODELS){
     try{
+      const cfg={maxOutputTokens:400,temperature:1.0};
+      if(model.includes("2.5"))cfg.thinkingConfig={thinkingBudget:0};
       const res=await fetch("https://generativelanguage.googleapis.com/v1beta/models/"+model+":generateContent?key="+encodeURIComponent(key),{
         method:"POST",headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{maxOutputTokens:1024,temperature:1.0}})
+        body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:cfg})
       });
       if(res.status===429){continue}
       if(!res.ok){continue}
@@ -316,19 +323,15 @@ function buildMorningPrompt(d){
   const missed=[];
   ydItems.forEach(b=>b.items.forEach(i=>{if(!chk[dk(yd)+":"+i.t])missed.push(i.t)}));
   const streak=gStrk();
-  return `You write the morning briefing for "The Plan," a self-improvement app for Sean.
+  return `Morning briefing for Sean's self-improvement app. Sean: 35, Toronto, 15yr relationship (priority #1), analytics job, gym + Fitbit, fighting post-COVID rut.
 
-About Sean: 35, lives in downtown Toronto, been in a relationship for 15 years. Works in analytics. On a genuine journey to be a better partner, friend, and person. His #1 priority is his relationship. He got a gym membership and a Fitbit recently. Post-COVID he got stuck in a rut and is actively fighting out of it.
+75-100 words. Tone: sharp caring friend, dry wit, warm not soft. Vary approach. No emoji, no exclamation marks, no bullets. Gently tease misses, never guilt-trip.
 
-Write a short morning paragraph (2-3 sentences). Like a sharp, caring friend who knows him. Warm but not soft. Witty, a bit dry. Can gently tease about yesterday but never guilt-trip. Vary your approach each time: sometimes humor, sometimes a challenge, sometimes warmth. Never formulaic. No emoji. No exclamation marks. No "Let's go!" energy. No bullet points.
-
-Today: ${c.dayName}, ${c.date} (${c.season})
-Type: ${c.isOfc?"Office day":c.isWknd?"Weekend":"Remote day"}
-${c.specials.length?"Special: "+c.specials.join(", "):""}
-Morning tasks: ${c.amItems.join(", ")}
-Evening tasks: ${c.pmItems.join(", ")}
-Yesterday: completed ${ys.dn}/${ys.tot} (${ys.pct}%)${missed.length>0?" — missed: "+missed.slice(0,4).join(", "):""}
-Current streak: ${streak} day${streak===1?"":"s"} at 70%+`;
+${c.dayName} ${c.date} | ${c.isOfc?"Office":c.isWknd?"Weekend":"Remote"}${c.specials.length?" | "+c.specials.join(", "):""}
+AM: ${c.amItems.join(", ")}
+PM: ${c.pmItems.join(", ")}
+Yesterday: ${ys.dn}/${ys.tot} (${ys.pct}%)${missed.length>0?" missed: "+missed.slice(0,4).join(", "):""}
+Streak: ${streak}d`;
 }
 
 function buildEveningPrompt(d){
@@ -338,19 +341,16 @@ function buildEveningPrompt(d){
   const done=[],left=[];
   getI(d.getDay()).forEach(b=>b.items.forEach(i=>{if(chk[key+":"+i.t])done.push(i.t);else left.push(i.t)}));
   const td=tmrwDate(d),tc=getBriefingCtx(td);
-  return `You write the evening briefing for "The Plan," a self-improvement app for Sean.
+  return `Evening check-in for Sean's self-improvement app. Sean: 35, Toronto, 15yr relationship (priority #1), analytics, fighting post-COVID rut.
 
-About Sean: 35, downtown Toronto, 15-year relationship, analytics. His #1 priority is being a better partner. He has a gym membership and Fitbit. Fighting his way out of a post-COVID rut.
+75-100 words. Acknowledge what he did, be specific. Mention misses honestly without guilt. Preview tomorrow. Tone: warm friend checking in, dry humor. No emoji, no exclamation marks, no bullets.
 
-Write a short evening paragraph (2-3 sentences). Acknowledge what he did today — be specific. If he missed things, mention it honestly but without guilt. Preview tomorrow briefly. Tone: warm, real, like a friend checking in. A touch of dry humor. No emoji. No exclamation marks. No bullet points.
-
-Today: ${c.dayName}, ${c.date}
-Progress: ${ts.dn}/${ts.tot} (${ts.pct}%)
-Morning: ${ts.byH.am.d}/${ts.byH.am.t} done. Evening: ${ts.byH.pm.d}/${ts.byH.pm.t} done.
-Completed: ${done.length?done.join(", "):"nothing yet"}
-Still open: ${left.length?left.join(", "):"all done"}
+${c.dayName} ${c.date} | ${ts.dn}/${ts.tot} (${ts.pct}%)
+AM: ${ts.byH.am.d}/${ts.byH.am.t} | PM: ${ts.byH.pm.d}/${ts.byH.pm.t}
+Done: ${done.length?done.slice(0,6).join(", "):"nothing yet"}
+Open: ${left.length?left.slice(0,5).join(", "):"all done"}
 Tomorrow: ${tc.dayName}${tc.specials.length?" — "+tc.specials.join(", "):""}
-Tomorrow's tasks: ${tc.amItems.slice(0,3).join(", ")}... and ${tc.pmItems.length} evening items`;
+Tomorrow AM: ${tc.amItems.slice(0,3).join(", ")}`;
 }
 
 async function loadBriefing(){
@@ -472,16 +472,18 @@ function rD(){
     <div class="prsec"><div class="prmeta"><span>${dn}/${tot} completed</span><span>${pct}%</span></div>
     <div class="prtrk"><div class="prfil" style="width:${pct}%;background:${pct===100?'linear-gradient(90deg,#5B8C5A,#7ab879)':'linear-gradient(90deg,#D4A030,#e8c060)'}"></div></div></div></div>`;
 
-  // Briefing
-  h+=`<div class="briefing" id="briefing"></div>`;
+  // Briefing with pull-to-refresh
+  h+=`<div id="br-wrap"><div class="br-pull" id="br-pull">↻ RELEASE TO REFRESH</div><div class="briefing" id="briefing"></div></div>`;
 
   // Morning section
   h+=`<div class="half-hdr"><div class="half-line"></div><span class="half-label">Morning</span><span class="half-stat">${amDn}/${amTot}</span><div class="half-line"></div></div>`;
   h+=`<div class="clist">${renderBlocks(amBlocks,key)}</div>`;
+  if(amTot>0&&amDn===amTot)h+=`<div class="half-done">Morning complete — nice start.</div>`;
 
   // Evening section
   h+=`<div class="half-hdr"><div class="half-line"></div><span class="half-label">Evening</span><span class="half-stat">${pmDn}/${pmTot}</span><div class="half-line"></div></div>`;
   h+=`<div class="clist">${renderBlocks(pmBlocks,key)}</div>`;
+  if(pmTot>0&&pmDn===pmTot)h+=`<div class="half-done">Evening wrapped up. Well done.</div>`;
 
   if(pct===100)h+=`<div class="cmsg">All done today. You showed up. That matters. 💛</div>`;
   if(td)h+=tmrwPreview();
@@ -554,9 +556,21 @@ function tog(k){chk[k]=!chk[k];if(!chk[k])delete chk[k];sv();render()}
 function tEx(k){ex[k]=!ex[k];render()}
 function sRf(k,v){rf[k]=v;sv()}
 
-let tsx=0,tsy=0;
-document.addEventListener("touchstart",e=>{tsx=e.touches[0].clientX;tsy=e.touches[0].clientY},{passive:true});
-document.addEventListener("touchend",e=>{let dx=e.changedTouches[0].clientX-tsx,dy=e.changedTouches[0].clientY-tsy;if(Math.abs(dx)>80&&Math.abs(dx)>Math.abs(dy)*1.5){if(aT==="daily"){dx>0?goD(-1):goD(1)}else{dx>0?wO--:wO++;render()}}},{passive:true});
+let tsx=0,tsy=0,brPull=false;
+document.addEventListener("touchstart",e=>{tsx=e.touches[0].clientX;tsy=e.touches[0].clientY;brPull=false},{passive:true});
+document.addEventListener("touchmove",e=>{
+  let dy=e.touches[0].clientY-tsy;
+  const el=document.getElementById("br-pull");
+  if(el&&dy>60&&window.scrollY<10&&aT==="daily"){el.classList.add("show");brPull=true}
+  else if(el){el.classList.remove("show");brPull=false}
+},{passive:true});
+document.addEventListener("touchend",e=>{
+  let dx=e.changedTouches[0].clientX-tsx,dy=e.changedTouches[0].clientY-tsy;
+  const el=document.getElementById("br-pull");
+  if(el)el.classList.remove("show");
+  if(brPull){brPull=false;refreshBriefing();return}
+  if(Math.abs(dx)>80&&Math.abs(dx)>Math.abs(dy)*1.5){if(aT==="daily"){dx>0?goD(-1):goD(1)}else{dx>0?wO--:wO++;render()}}
+},{passive:true});
 document.addEventListener("keydown",e=>{if(e.target.tagName==="TEXTAREA")return;if(e.key==="ArrowLeft"){aT==="daily"?goD(-1):(wO--,render())}if(e.key==="ArrowRight"){aT==="daily"?goD(1):(wO++,render())}});
 
 // ── PWA Service Worker ──
