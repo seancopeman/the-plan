@@ -51,7 +51,37 @@
   .prmeta{display:flex;justify-content:space-between;font-size:11px;font-family:var(--mn);opacity:.45;margin-bottom:7px}
   .prtrk{height:4px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden}
   .prfil{height:100%;border-radius:3px;transition:width .4s cubic-bezier(.4,0,.2,1)}
-  .ctxbar{padding:14px 22px;background:var(--ctxbg);border-bottom:1px solid var(--brd);font-size:13px;color:var(--tx2);font-style:italic;line-height:1.5}
+
+  /* Briefing */
+  .briefing{padding:18px 22px;background:#fff;border-bottom:1px solid var(--brd)}
+  .br-text{font-size:15.5px;line-height:1.65;color:var(--tx);font-style:italic}
+  .br-meta{display:flex;align-items:center;justify-content:space-between;margin-top:10px}
+  .br-label{font-family:var(--mn);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--tx3)}
+  .br-refresh{background:none;border:1px solid var(--brd);border-radius:4px;padding:3px 8px;font-family:var(--mn);font-size:9px;letter-spacing:1px;color:var(--tx3);cursor:pointer;transition:all .15s}
+  .br-refresh:active{background:var(--ctxbg)}
+  .br-loading{font-family:var(--mn);font-size:12px;color:var(--tx3);font-style:italic}
+  .br-setup{font-size:14px;color:var(--tx2);line-height:1.6}
+  .br-setup-btn{display:inline-block;margin-top:8px;padding:6px 14px;border-radius:6px;font-family:var(--mn);font-size:10px;letter-spacing:1px;border:1px solid var(--gold);background:rgba(212,160,48,.08);color:var(--gold);cursor:pointer}
+
+  /* Settings overlay */
+  .settings-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;display:flex;align-items:center;justify-content:center;animation:fadeIn .15s ease}
+  .settings-panel{background:#fff;border-radius:12px;padding:28px 24px;width:90%;max-width:360px;box-shadow:0 8px 32px rgba(0,0,0,.15)}
+  .settings-title{font-family:var(--mn);font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--tx3);margin-bottom:16px}
+  .settings-label{font-size:14px;color:var(--tx);margin-bottom:6px;font-weight:500}
+  .settings-hint{font-size:12px;color:var(--tx3);margin-bottom:12px;line-height:1.5}
+  .settings-input{width:100%;border:1px solid var(--brd);border-radius:8px;padding:10px 12px;font-family:var(--mn);font-size:12px;color:var(--tx);background:#fff;transition:border-color .15s}
+  .settings-input:focus{outline:none;border-color:var(--gold)}
+  .settings-actions{display:flex;gap:8px;margin-top:16px;justify-content:flex-end}
+  .settings-btn{padding:8px 18px;border-radius:6px;font-family:var(--mn);font-size:11px;letter-spacing:1px;cursor:pointer;border:none;transition:all .15s}
+  .settings-save{background:var(--hdr);color:#fff}
+  .settings-cancel{background:var(--ctxbg);color:var(--tx2)}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+  /* Section dividers */
+  .half-hdr{display:flex;align-items:center;gap:10px;padding:14px 22px 6px;margin-top:4px}
+  .half-line{flex:1;height:1px;background:var(--brd)}
+  .half-label{font-family:var(--mn);font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--tx3);white-space:nowrap}
+  .half-stat{font-family:var(--mn);font-size:9px;color:var(--tx3)}
 
   /* Checklist */
   .clist{padding:6px 14px 20px}
@@ -91,6 +121,10 @@
   .ftr{padding:16px 24px 32px;border-top:1px solid var(--brd);text-align:center}
   .tbtn{background:var(--hdr);color:#fff;border:none;padding:11px 28px;border-radius:8px;font-size:12px;font-family:var(--mn);letter-spacing:1px;cursor:pointer;margin-bottom:12px}
   .pdsc{font-size:12px;color:#bbb;font-style:italic;margin-top:10px}
+
+  /* Settings gear in header */
+  .gear-btn{position:absolute;top:12px;right:12px;background:none;border:none;color:rgba(240,232,216,.3);font-size:16px;cursor:pointer;z-index:2;padding:4px;transition:color .15s}
+  .gear-btn:active{color:rgba(240,232,216,.6)}
 
   /* Weekly */
   .wv{padding:20px 16px 40px}
@@ -137,7 +171,7 @@
   .bgrp:nth-child(6){animation-delay:.15s}.bgrp:nth-child(7){animation-delay:.18s}
   .bgrp:nth-child(8){animation-delay:.21s}.bgrp:nth-child(9){animation-delay:.24s}
 
-  @media(max-width:600px){.hdr{padding:24px 16px 18px}.ctxbar{padding:12px 16px}.clist{padding:6px 8px 20px}.wv{padding:16px 10px 40px}}
+  @media(max-width:600px){.hdr{padding:24px 16px 18px}.briefing{padding:14px 16px}.clist{padding:6px 8px 20px}.wv{padding:16px 10px 40px}}
 </style>
 </head>
 <body>
@@ -182,19 +216,18 @@ const LN=[{t:"Build a dashboard with Claude + Artifacts",n:"Prototype analytics 
 const CK=[{m:"Negroni",n:"Equal parts gin, Campari, sweet vermouth. Stir. Orange peel."},{m:"Old Fashioned",n:"Bourbon, sugar, Angostura, orange peel. Master this first."},{m:"Daiquiri (proper)",n:"Rum, lime, simple syrup. Shaken hard. Elegant."},{m:"Manhattan",n:"Rye, sweet vermouth, Angostura. Stirred. Cherry."},{m:"Whiskey Sour",n:"Bourbon, lemon, simple syrup, optional egg white."},{m:"Espresso Martini",n:"Vodka, Kahlua, fresh espresso. Shake hard for crema."},{m:"Aperol Spritz",n:"Aperol, prosecco, soda. The patio drink."},{m:"Margarita (classic)",n:"Tequila, Cointreau, lime. Salt rim. No mix."},{m:"Paper Plane",n:"Equal parts bourbon, Aperol, Amaro Nonino, lemon."},{m:"French 75",n:"Gin, lemon, simple syrup, topped with champagne."}];
 
 const HB=[
-  {b:"Morning",cl:"#D4A030",ic:"☀️",items:[{t:"Wake up at 6:30am",d:"all"},{t:"No phone for 30 minutes",d:"all"},{t:"Water, stretch, 10 min reading or journaling",d:"all"}]},
-  {b:"Relationship",cl:"#D4A030",ic:"💛",items:[{t:"Ask your partner one real question tonight",d:"all",ex:{tp:"pq",lb:"Show me questions"}},{t:"No phone during quality time",d:"all"},{t:"Name one emotion out loud today",d:"all",ex:{tp:"em",lb:"Help me name it"}},{t:"Date night tonight — no phones, be present",d:[5],sp:1}]},
-  {b:"Social",cl:"#5B8C5A",ic:"🤝",items:[{t:"Respond to any pending messages (24hr rule)",d:"all"},{t:"Reach out to one friend proactively",d:[1,3,5],ex:{tp:"fm",lb:"Example messages"}},{t:"Organize something with friends this week",d:[1]}]},
-  {b:"Mind & Culture",cl:"#6B5B8A",ic:"📖",items:[{t:"Read for 30 minutes (New Yorker, book)",d:"all"},{t:"No YouTube Shorts or Twitter doom-scrolling",d:"all"},{t:"Watch a full movie tonight",d:[6]},{t:"Explore a new album start to finish",d:[0,4]}]},
-  {b:"Digital Wellness",cl:"#C0564B",ic:"📵",items:[{t:"Stay within screen time limits (30m Twitter / 20m YT)",d:"all"},{t:"Phone in another room after 9pm",d:"all"}]},
-  {b:"Physical",cl:"#3A7CA5",ic:"💪",items:[{t:"Outdoor run",d:[1,6],s:"warm"},{t:"Treadmill run (indoor)",d:[1,6],s:"cold"},{t:"Gym — weight training",d:[2,4]},{t:"Walk commute — 7k steps each way",d:[3,4]},{t:"Check Fitbit stats — hit your goals",d:"all"}]},
-  {b:"Hobbies",cl:"#D48C2E",ic:"♟️",items:[{t:"Chess: puzzle or game (10 min)",d:"all"},{t:"Try a new recipe this week",d:[0,6],ex:{tp:"rc",lb:"Recipe ideas"}},{t:"Be spontaneous — say yes to something unexpected",d:[5,6],ex:{tp:"to",lb:"Ideas in Toronto"}},{t:"Cocktail project: learn a new classic",d:[5],ex:{tp:"ck",lb:"Cocktail ideas"}}]},
-  {b:"Career",cl:"#2D6A4F",ic:"📊",items:[{t:"Learning block: 4:30–5:00pm (AI, analytics, tools)",d:[1,2,3,4,5],ex:{tp:"ln",lb:"Today's topic"}},{t:"Phone in drawer during focus time at work",d:[1,2,3,4,5]},{t:"Identify one problem and propose a solution",d:[2,4]},{t:"Write or share something you learned",d:[3]}]},
-  {b:"Evening",cl:"#7B6B8A",ic:"🌙",items:[{t:"2-minute rule: handle any small chores immediately",d:"all"},{t:"10-minute kitchen/living room tidy",d:"all"},{t:"Floss, wash face, skincare routine",d:"all"},{t:"Journal 5 min before bed",d:"all",ex:{tp:"jn",lb:"Tonight's prompt"}},{t:"Weekly reflection (see Review tab)",d:[0]}]},
+  {b:"Morning Routine",cl:"#D4A030",ic:"☀️",half:"am",items:[{t:"Wake up at 6:30am",d:"all"},{t:"No phone for 30 minutes",d:"all"},{t:"Water, stretch, 10 min reading or journaling",d:"all"}]},
+  {b:"Physical",cl:"#3A7CA5",ic:"💪",half:"am",items:[{t:"Outdoor run",d:[1,6],s:"warm"},{t:"Treadmill run (indoor)",d:[1,6],s:"cold"},{t:"Gym — weight training",d:[2,4]},{t:"Walk commute — 7k steps each way",d:[3,4]},{t:"Check Fitbit stats — hit your goals",d:"all"}]},
+  {b:"Work & Focus",cl:"#2D6A4F",ic:"📊",half:"am",items:[{t:"Phone in drawer during focus time",d:[1,2,3,4,5]},{t:"Learning block: 4:30–5:00pm (AI, analytics, tools)",d:[1,2,3,4,5],ex:{tp:"ln",lb:"Today's topic"}},{t:"Identify one problem and propose a solution",d:[2,4]},{t:"Write or share something you learned",d:[3]}]},
+  {b:"Relationship",cl:"#D4A030",ic:"💛",half:"pm",items:[{t:"Ask your partner one real question tonight",d:"all",ex:{tp:"pq",lb:"Show me questions"}},{t:"No phone during quality time",d:"all"},{t:"Name one emotion out loud today",d:"all",ex:{tp:"em",lb:"Help me name it"}},{t:"Date night tonight — no phones, be present",d:[5],sp:1}]},
+  {b:"Social",cl:"#5B8C5A",ic:"🤝",half:"pm",items:[{t:"Respond to any pending messages (24hr rule)",d:"all"},{t:"Reach out to one friend proactively",d:[1,3,5],ex:{tp:"fm",lb:"Example messages"}},{t:"Organize something with friends this week",d:[1]}]},
+  {b:"Mind & Culture",cl:"#6B5B8A",ic:"📖",half:"pm",items:[{t:"Read for 30 minutes (New Yorker, book)",d:"all"},{t:"Watch a full movie tonight",d:[6]},{t:"Explore a new album start to finish",d:[0,4]}]},
+  {b:"Hobbies",cl:"#D48C2E",ic:"♟️",half:"pm",items:[{t:"Chess: puzzle or game (10 min)",d:"all"},{t:"Try a new recipe this week",d:[0,6],ex:{tp:"rc",lb:"Recipe ideas"}},{t:"Be spontaneous — say yes to something unexpected",d:[5,6],ex:{tp:"to",lb:"Ideas in Toronto"}},{t:"Cocktail project: learn a new classic",d:[5],ex:{tp:"ck",lb:"Cocktail ideas"}}]},
+  {b:"Wind Down",cl:"#7B6B8A",ic:"🌙",half:"pm",items:[{t:"If it takes 2 minutes, just do it now",d:"all"},{t:"10-minute kitchen/living room tidy",d:"all"},{t:"Phone in another room after 9pm",d:"all"},{t:"Floss, wash face, skincare routine",d:"all"},{t:"Journal 5 min before bed",d:"all",ex:{tp:"jn",lb:"Tonight's prompt"}},{t:"Weekly reflection (see Review tab)",d:[0]}]},
 ];
 
 // ── State ──
-let cD=new Date(),aT="daily",chk={},rf={},ex={},pS={},wO=0;
+let cD=new Date(),aT="daily",chk={},rf={},ex={},pS={},wO=0,showSettings=false;
 try{let s=localStorage.getItem("tp-chk");if(s)chk=JSON.parse(s)}catch(e){}
 try{let s=localStorage.getItem("tp-rf");if(s)rf=JSON.parse(s)}catch(e){}
 function sv(){try{localStorage.setItem("tp-chk",JSON.stringify(chk))}catch(e){}try{localStorage.setItem("tp-rf",JSON.stringify(rf))}catch(e){}}
@@ -206,13 +239,13 @@ function fmtS(d){return d.toLocaleDateString("en-CA",{month:"short",day:"numeric
 function tmrwDate(d){let t=new Date(d);t.setDate(t.getDate()+1);return t}
 function ystrDate(d){let t=new Date(d);t.setDate(t.getDate()-1);return t}
 
-function getI(di){let m=cD.getMonth(),warm=m>=3&&m<=9,r=[];for(let b of HB){let it=b.items.filter(i=>{if(i.s&&((i.s==="warm"&&!warm)||(i.s==="cold"&&warm)))return false;return i.d==="all"||i.d.includes(di)});if(it.length)r.push({...b,items:it})}return r}
+function getI(di,half){let m=cD.getMonth(),warm=m>=3&&m<=9,r=[];for(let b of HB){if(half&&b.half!==half)continue;let it=b.items.filter(i=>{if(i.s&&((i.s==="warm"&&!warm)||(i.s==="cold"&&warm)))return false;return i.d==="all"||i.d.includes(di)});if(it.length)r.push({...b,items:it})}return r}
 
 function getCtx(di){
-  if(OFC.includes(di))return"🏢 Office day — walk commute, deep focus, learning block at 4:30";
-  if(di===5)return"🎉 Friday — date night tonight. Be present. Be romantic.";
-  if(di===0||di===6)return"☕ Weekend — recharge, explore, be spontaneous. Stay consistent on habits.";
-  return"🏠 Remote day — protect your morning routine and focus time."
+  if(OFC.includes(di))return"Office day — walk commute, deep focus, learning block at 4:30";
+  if(di===5)return"Friday — date night tonight. Be present. Be romantic.";
+  if(di===0||di===6)return"Weekend — recharge, explore, be spontaneous. Stay consistent on habits.";
+  return"Remote day — protect your morning routine and focus time."
 }
 function getPh(d){let w=Math.floor((d-ST)/(7*864e5));if(w<0)return{n:1,nm:"Foundation",c:"#D4A030",ds:"Small wins, big momentum."};if(w<2)return{n:1,nm:"Foundation",c:"#D4A030",ds:"Small wins, big momentum."};if(w<6)return{n:2,nm:"Building",c:"#5B8C5A",ds:"Layer in new habits one at a time."};if(w<12)return{n:3,nm:"Deepening",c:"#6B5B8A",ds:"Go deeper on what matters most."};return{n:4,nm:"Sustaining",c:"#3A7CA5",ds:"Maintain momentum. Reflect and adjust."}}
 
@@ -223,10 +256,10 @@ function gSd(tp){let k="s-"+tp+"-"+dk(cD);return dk(cD)+"-"+(pS[k]||0)}
 function exC(e,cl){
   let sd=gSd(e.tp),h="";
   const mp={
-    pq:()=>{let p=sP(PQ,sd,3);h+=`<div class="olbl">Tonight's options — pick one that feels right:</div>`;p.forEach(x=>{h+=`<div class="opt" style="border-left-color:${cl}"><div class="otx">"${x.q}"</div><div class="ont">${x.n}</div></div>`});h+=`<button class="shuf" onclick="event.stopPropagation();shuf('pq')">↻ Different questions</button>`},
+    pq:()=>{let p=sP(PQ,sd,3);h+=`<div class="olbl">Tonight's options — pick one that feels right:</div>`;p.forEach(x=>{h+=`<div class="opt" style="border-left-color:${cl}"><div class="otx">“${x.q}”</div><div class="ont">${x.n}</div></div>`});h+=`<button class="shuf" onclick="event.stopPropagation();shuf('pq')">↻ Different questions</button>`},
     em:()=>{let p=sP(EM,sd,5);h+=`<div class="olbl">Which of these resonates today?</div>`;p.forEach(x=>{h+=`<div class="opt" style="border-left-color:${cl}"><div class="otx">${x}</div></div>`});h+=`<button class="shuf" onclick="event.stopPropagation();shuf('em')">↻ Show different</button>`},
     jn:()=>{let p=sP(JN,sd,2);h+=`<div class="olbl">Tonight's journal prompt:</div>`;p.forEach(x=>{h+=`<div class="opt" style="border-left-color:${cl}"><div class="otx">${x.p}</div><div class="ont">${x.c}</div></div>`});h+=`<button class="shuf" onclick="event.stopPropagation();shuf('jn')">↻ Different prompt</button>`},
-    fm:()=>{let p=sP(FM,sd,3);h+=`<div class="olbl">Copy-paste or adapt — don't overthink it:</div>`;p.forEach(x=>{h+=`<div class="opt" style="border-left-color:${cl}"><div class="otx">"${x}"</div></div>`});h+=`<button class="shuf" onclick="event.stopPropagation();shuf('fm')">↻ Different messages</button>`},
+    fm:()=>{let p=sP(FM,sd,3);h+=`<div class="olbl">Copy-paste or adapt — don't overthink it:</div>`;p.forEach(x=>{h+=`<div class="opt" style="border-left-color:${cl}"><div class="otx">“${x}”</div></div>`});h+=`<button class="shuf" onclick="event.stopPropagation();shuf('fm')">↻ Different messages</button>`},
     to:()=>{let p=sP(TO,sd,3);h+=`<div class="olbl">Toronto ideas for today:</div>`;p.forEach(x=>{h+=`<div class="opt" style="border-left-color:${cl}"><div class="otx">${x}</div></div>`});h+=`<button class="shuf" onclick="event.stopPropagation();shuf('to')">↻ Different ideas</button>`},
     rc:()=>{let p=sP(RC,sd,3);h+=`<div class="olbl">This week's recipe challenge:</div>`;p.forEach(x=>{h+=`<div class="opt" style="border-left-color:${cl}"><div class="otx">${x.m}</div><div class="ont">${x.n}</div></div>`});h+=`<button class="shuf" onclick="event.stopPropagation();shuf('rc')">↻ Different recipes</button>`},
     ln:()=>{let p=sP(LN,sd,2);h+=`<div class="olbl">Today's 4:30pm learning focus:</div>`;p.forEach(x=>{h+=`<div class="opt" style="border-left-color:${cl}"><div class="otx">${x.t}</div><div class="ont">${x.n}</div></div>`});h+=`<button class="shuf" onclick="event.stopPropagation();shuf('ln')">↻ Different topic</button>`},
@@ -236,28 +269,153 @@ function exC(e,cl){
   return h;
 }
 
-function gDS(d){let di=d.getDay(),bs=getI(di),k=dk(d),tot=0,dn=0,byB={};for(let b of bs){let bt=0,bd=0;for(let i of b.items){tot++;bt++;if(chk[k+":"+i.t]){dn++;bd++}}byB[b.b]={t:bt,d:bd}}return{tot,dn,pct:tot?Math.round(dn/tot*100):0,byB}}
+function gDS(d){let di=d.getDay(),bs=getI(di),k=dk(d),tot=0,dn=0,byB={},byH={am:{t:0,d:0},pm:{t:0,d:0}};for(let b of bs){let bt=0,bd=0;for(let i of b.items){tot++;bt++;byH[b.half].t++;if(chk[k+":"+i.t]){dn++;bd++;byH[b.half].d++}}byB[b.b]={t:bt,d:bd}}return{tot,dn,pct:tot?Math.round(dn/tot*100):0,byB,byH}}
 function gWD(o){let n=new Date(),m=new Date(n);m.setDate(n.getDate()-n.getDay()+1+(o*7));let ds=[];for(let i=0;i<7;i++){let d=new Date(m);d.setDate(m.getDate()+i);ds.push(d)}return ds}
 function gStrk(){let s=0,d=new Date();if(gDS(d).pct<100)d.setDate(d.getDate()-1);for(let i=0;i<365;i++){let st=gDS(d);if(st.tot===0){d.setDate(d.getDate()-1);continue}if(st.pct>=70)s++;else break;d.setDate(d.getDate()-1)}return s}
 
-// ── Tomorrow preview items ──
+// ── Gemini AI Briefing ──
+async function callGemini(prompt){
+  const key=localStorage.getItem("tp-gemini-key");
+  if(!key)return null;
+  try{
+    const res=await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key="+encodeURIComponent(key),{
+      method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{maxOutputTokens:200,temperature:1.0}})
+    });
+    if(!res.ok)return null;
+    const data=await res.json();
+    return data.candidates?.[0]?.content?.parts?.[0]?.text||null;
+  }catch(e){return null}
+}
+
+function getBriefingCtx(d){
+  const di=d.getDay(),isOfc=OFC.includes(di),isWknd=di===0||di===6;
+  const am=getI(di,"am"),pm=getI(di,"pm");
+  const amItems=am.flatMap(b=>b.items.map(i=>i.t));
+  const pmItems=pm.flatMap(b=>b.items.map(i=>i.t));
+  const specials=[];
+  if(isOfc)specials.push("office day, walk commute");
+  if(di===5)specials.push("date night tonight");
+  if(di===6)specials.push("movie night");
+  if(isWknd)specials.push("weekend");
+  const m=d.getMonth();
+  const season=m>=3&&m<=9?"summer/warm months":"winter/cold months";
+  return{dayName:DY[di],date:fmt(d),isOfc,isWknd,amItems,pmItems,specials,season};
+}
+
+function buildMorningPrompt(d){
+  const c=getBriefingCtx(d);
+  const yd=ystrDate(d),ys=gDS(yd);
+  const ydItems=getI(yd.getDay());
+  const missed=[];
+  ydItems.forEach(b=>b.items.forEach(i=>{if(!chk[dk(yd)+":"+i.t])missed.push(i.t)}));
+  const streak=gStrk();
+  return `You write the morning briefing for "The Plan," a self-improvement app for Sean.
+
+About Sean: 35, lives in downtown Toronto, been in a relationship for 15 years. Works in analytics. On a genuine journey to be a better partner, friend, and person. His #1 priority is his relationship. He got a gym membership and a Fitbit recently. Post-COVID he got stuck in a rut and is actively fighting out of it.
+
+Write a short morning paragraph (2-3 sentences). Like a sharp, caring friend who knows him. Warm but not soft. Witty, a bit dry. Can gently tease about yesterday but never guilt-trip. Vary your approach each time: sometimes humor, sometimes a challenge, sometimes warmth. Never formulaic. No emoji. No exclamation marks. No "Let's go!" energy. No bullet points.
+
+Today: ${c.dayName}, ${c.date} (${c.season})
+Type: ${c.isOfc?"Office day":c.isWknd?"Weekend":"Remote day"}
+${c.specials.length?"Special: "+c.specials.join(", "):""}
+Morning tasks: ${c.amItems.join(", ")}
+Evening tasks: ${c.pmItems.join(", ")}
+Yesterday: completed ${ys.dn}/${ys.tot} (${ys.pct}%)${missed.length>0?" — missed: "+missed.slice(0,4).join(", "):""}
+Current streak: ${streak} day${streak===1?"":"s"} at 70%+`;
+}
+
+function buildEveningPrompt(d){
+  const c=getBriefingCtx(d);
+  const ts=gDS(d);
+  const key=dk(d);
+  const done=[],left=[];
+  getI(d.getDay()).forEach(b=>b.items.forEach(i=>{if(chk[key+":"+i.t])done.push(i.t);else left.push(i.t)}));
+  const td=tmrwDate(d),tc=getBriefingCtx(td);
+  return `You write the evening briefing for "The Plan," a self-improvement app for Sean.
+
+About Sean: 35, downtown Toronto, 15-year relationship, analytics. His #1 priority is being a better partner. He has a gym membership and Fitbit. Fighting his way out of a post-COVID rut.
+
+Write a short evening paragraph (2-3 sentences). Acknowledge what he did today — be specific. If he missed things, mention it honestly but without guilt. Preview tomorrow briefly. Tone: warm, real, like a friend checking in. A touch of dry humor. No emoji. No exclamation marks. No bullet points.
+
+Today: ${c.dayName}, ${c.date}
+Progress: ${ts.dn}/${ts.tot} (${ts.pct}%)
+Morning: ${ts.byH.am.d}/${ts.byH.am.t} done. Evening: ${ts.byH.pm.d}/${ts.byH.pm.t} done.
+Completed: ${done.length?done.join(", "):"nothing yet"}
+Still open: ${left.length?left.join(", "):"all done"}
+Tomorrow: ${tc.dayName}${tc.specials.length?" — "+tc.specials.join(", "):""}
+Tomorrow's tasks: ${tc.amItems.slice(0,3).join(", ")}... and ${tc.pmItems.length} evening items`;
+}
+
+async function loadBriefing(){
+  const el=document.getElementById("briefing");
+  if(!el)return;
+  if(!isTd(cD)){el.innerHTML="";return}
+  const key=localStorage.getItem("tp-gemini-key");
+  if(!key){
+    el.innerHTML=`<div class="br-setup">Set up AI-powered daily briefings to get a personalized morning and evening check-in.<br><button class="br-setup-btn" onclick="openSettings()">Connect Gemini API</button></div>`;
+    return;
+  }
+  const hour=new Date().getHours();
+  const period=hour<17?"am":"pm";
+  const cacheKey="tp-br-"+dk(cD)+"-"+period;
+  const cached=localStorage.getItem(cacheKey);
+  if(cached){
+    el.innerHTML=`<div class="br-text">${cached}</div><div class="br-meta"><span class="br-label">${period==="am"?"Morning briefing":"Evening check-in"}</span><button class="br-refresh" onclick="refreshBriefing()">Refresh</button></div>`;
+    return;
+  }
+  el.innerHTML=`<div class="br-loading">Thinking...</div>`;
+  const prompt=period==="am"?buildMorningPrompt(cD):buildEveningPrompt(cD);
+  const text=await callGemini(prompt);
+  if(text){
+    const clean=text.replace(/[<>]/g,"").trim();
+    localStorage.setItem(cacheKey,clean);
+    el.innerHTML=`<div class="br-text">${clean}</div><div class="br-meta"><span class="br-label">${period==="am"?"Morning briefing":"Evening check-in"}</span><button class="br-refresh" onclick="refreshBriefing()">Refresh</button></div>`;
+  }else{
+    el.innerHTML=`<div class="br-text" style="color:var(--tx3)">${getCtx(cD.getDay())}</div><div class="br-meta"><span class="br-label">Couldn't reach AI — showing default</span><button class="br-refresh" onclick="refreshBriefing()">Retry</button></div>`;
+  }
+}
+
+async function refreshBriefing(){
+  const hour=new Date().getHours();
+  const period=hour<17?"am":"pm";
+  localStorage.removeItem("tp-br-"+dk(cD)+"-"+period);
+  const el=document.getElementById("briefing");
+  if(el)el.innerHTML=`<div class="br-loading">Thinking...</div>`;
+  const prompt=period==="am"?buildMorningPrompt(cD):buildEveningPrompt(cD);
+  const text=await callGemini(prompt);
+  if(text){
+    const clean=text.replace(/[<>]/g,"").trim();
+    localStorage.setItem("tp-br-"+dk(cD)+"-"+period,clean);
+    if(el)el.innerHTML=`<div class="br-text">${clean}</div><div class="br-meta"><span class="br-label">${period==="am"?"Morning briefing":"Evening check-in"}</span><button class="br-refresh" onclick="refreshBriefing()">Refresh</button></div>`;
+  }
+}
+
+function openSettings(){showSettings=true;render()}
+function closeSettings(){showSettings=false;render()}
+function saveApiKey(){
+  const inp=document.getElementById("api-key-input");
+  if(inp&&inp.value.trim()){
+    localStorage.setItem("tp-gemini-key",inp.value.trim());
+    showSettings=false;
+    render();
+    loadBriefing();
+  }
+}
+
+// ── Tomorrow preview ──
 function tmrwPreview(){
   let td=tmrwDate(cD),di=td.getDay(),bs=getI(di);
-  let specials=[];
-  for(let b of bs)for(let it of b.items){if(it.sp)specials.push({t:it.t,cl:b.cl,ic:b.ic})}
-  // Show context + count + any special items
-  let dayName=DY[di];
-  let isOfc=OFC.includes(di);
   let total=bs.reduce((s,b)=>s+b.items.length,0);
+  let isOfc=OFC.includes(di);
   let h=`<div class="tmrw-peek" onclick="cD=new Date(${td.getTime()});render()">
-    <div class="tmrw-hdr"><div class="tmrw-title">Tomorrow · ${dayName}</div><div class="tmrw-arrow">→</div></div>
+    <div class="tmrw-hdr"><div class="tmrw-title">Tomorrow · ${DY[di]}</div><div class="tmrw-arrow">→</div></div>
     <div class="tmrw-items">
       <span class="tmrw-chip">${total} habits</span>
       ${isOfc?'<span class="tmrw-chip">🏢 Office</span>':''}
       ${di===5?'<span class="tmrw-chip hl" style="background:#D4A03018;color:#D4A030">💛 Date night</span>':''}
       ${di===0||di===6?'<span class="tmrw-chip">☕ Weekend</span>':''}
       ${di===6?'<span class="tmrw-chip">🎬 Movie night</span>':''}`;
-  // Show unique items for tomorrow
   let uniq=[];
   for(let b of bs)for(let it of b.items){if(it.d!=="all"&&!uniq.includes(it.t))uniq.push(it.t)}
   uniq.slice(0,3).forEach(u=>{h+=`<span class="tmrw-chip">${u.length>40?u.slice(0,38)+'…':u}</span>`});
@@ -265,30 +423,10 @@ function tmrwPreview(){
   return h;
 }
 
-// ── Render: Daily ──
-function rD(){
-  let di=cD.getDay(),bs=getI(di),key=dk(cD),ph=getPh(cD),ctx=getCtx(di),td=isTd(cD);
-  let tot=0,dn=0;for(let b of bs)for(let i of b.items){tot++;if(chk[key+":"+i.t])dn++}
-  let pct=tot?Math.round(dn/tot*100):0;
-
-  let tmrw=tmrwDate(cD),ystr=ystrDate(cD);
-  let tdPill=td,tmrwPill=isTd(ystr),ystrPill=isTd(tmrw); // which pill is "active"
-
-  let h=`<div class="hdr"><div class="nav">
-    <button class="nbtn" onclick="goD(-1)">‹</button>
-    <div class="dctr"><div class="dsup">${td?"Today":DY[di]}</div><div class="dmn">${td?DY[di]:fmt(cD)}</div>${td?`<div class="dsub">${fmt(cD)}</div>`:""}</div>
-    <button class="nbtn" onclick="goD(1)">›</button></div>
-    <div class="qpills">
-      <button class="qpill${isTd(ystrDate(cD))?" on":""}" onclick="cD=ystrDate(cD);render()">Yesterday</button>
-      <button class="qpill${td?" on":""}" onclick="goTd()">Today</button>
-      <button class="qpill${isTd(tmrwDate(cD))?" on":""}" onclick="cD=tmrwDate(cD);render()">Tomorrow</button>
-    </div>
-    <div class="phrow"><span class="phbdg" style="background:${ph.c}35;color:${ph.c}">Phase ${ph.n}: ${ph.nm}</span></div>
-    <div class="prsec"><div class="prmeta"><span>${dn}/${tot} completed</span><span>${pct}%</span></div>
-    <div class="prtrk"><div class="prfil" style="width:${pct}%;background:${pct===100?'linear-gradient(90deg,#5B8C5A,#7ab879)':'linear-gradient(90deg,#D4A030,#e8c060)'}"></div></div></div></div>
-    <div class="ctxbar">${ctx}</div><div class="clist">`;
-
-  for(let b of bs){
+// ── Render blocks for a half ──
+function renderBlocks(blocks,key){
+  let h="";
+  for(let b of blocks){
     let bd=b.items.filter(i=>chk[key+":"+i.t]).length;
     h+=`<div class="bgrp"><div class="bhdr"><span class="bico">${b.ic}</span><span class="blbl" style="color:${b.cl}">${b.b}</span><span class="bcnt">${bd}/${b.items.length}</span></div>`;
     for(let it of b.items){
@@ -302,14 +440,61 @@ function rD(){
     }
     h+=`</div>`;
   }
-  h+=`</div>`;
+  return h;
+}
+
+// ── Render: Daily ──
+function rD(){
+  let di=cD.getDay(),key=dk(cD),ph=getPh(cD),td=isTd(cD);
+  let amBlocks=getI(di,"am"),pmBlocks=getI(di,"pm");
+  let allBlocks=[...amBlocks,...pmBlocks];
+  let tot=0,dn=0;for(let b of allBlocks)for(let i of b.items){tot++;if(chk[key+":"+i.t])dn++}
+  let pct=tot?Math.round(dn/tot*100):0;
+  let amTot=0,amDn=0;for(let b of amBlocks)for(let i of b.items){amTot++;if(chk[key+":"+i.t])amDn++}
+  let pmTot=0,pmDn=0;for(let b of pmBlocks)for(let i of b.items){pmTot++;if(chk[key+":"+i.t])pmDn++}
+
+  let h=`<div class="hdr"><button class="gear-btn" onclick="openSettings()">⚙</button><div class="nav">
+    <button class="nbtn" onclick="goD(-1)">‹</button>
+    <div class="dctr"><div class="dsup">${td?"Today":DY[di]}</div><div class="dmn">${td?DY[di]:fmt(cD)}</div>${td?`<div class="dsub">${fmt(cD)}</div>`:""}</div>
+    <button class="nbtn" onclick="goD(1)">›</button></div>
+    <div class="qpills">
+      <button class="qpill${isTd(ystrDate(cD))?" on":""}" onclick="cD=ystrDate(cD);render()">Yesterday</button>
+      <button class="qpill${td?" on":""}" onclick="goTd()">Today</button>
+      <button class="qpill${isTd(tmrwDate(cD))?" on":""}" onclick="cD=tmrwDate(cD);render()">Tomorrow</button>
+    </div>
+    <div class="phrow"><span class="phbdg" style="background:${ph.c}35;color:${ph.c}">Phase ${ph.n}: ${ph.nm}</span></div>
+    <div class="prsec"><div class="prmeta"><span>${dn}/${tot} completed</span><span>${pct}%</span></div>
+    <div class="prtrk"><div class="prfil" style="width:${pct}%;background:${pct===100?'linear-gradient(90deg,#5B8C5A,#7ab879)':'linear-gradient(90deg,#D4A030,#e8c060)'}"></div></div></div></div>`;
+
+  // Briefing
+  h+=`<div class="briefing" id="briefing"></div>`;
+
+  // Morning section
+  h+=`<div class="half-hdr"><div class="half-line"></div><span class="half-label">Morning</span><span class="half-stat">${amDn}/${amTot}</span><div class="half-line"></div></div>`;
+  h+=`<div class="clist">${renderBlocks(amBlocks,key)}</div>`;
+
+  // Evening section
+  h+=`<div class="half-hdr"><div class="half-line"></div><span class="half-label">Evening</span><span class="half-stat">${pmDn}/${pmTot}</span><div class="half-line"></div></div>`;
+  h+=`<div class="clist">${renderBlocks(pmBlocks,key)}</div>`;
 
   if(pct===100)h+=`<div class="cmsg">All done today. You showed up. That matters. 💛</div>`;
-
-  // Tomorrow preview (only show when viewing today or past)
   if(td)h+=tmrwPreview();
-
   h+=`<div class="ftr">${!td?`<button class="tbtn" onclick="goTd()">← BACK TO TODAY</button>`:""}<div class="pdsc">${ph.ds}</div></div>`;
+
+  // Settings overlay
+  if(showSettings){
+    const curKey=localStorage.getItem("tp-gemini-key")||"";
+    h+=`<div class="settings-overlay" onclick="closeSettings()"><div class="settings-panel" onclick="event.stopPropagation()">
+      <div class="settings-title">Settings</div>
+      <div class="settings-label">Gemini API Key</div>
+      <div class="settings-hint">Your key is stored locally on this device only. Get one free at <strong>aistudio.google.com</strong></div>
+      <input class="settings-input" id="api-key-input" type="password" placeholder="Paste your API key" value="${curKey}">
+      <div class="settings-actions">
+        <button class="settings-btn settings-cancel" onclick="closeSettings()">Cancel</button>
+        <button class="settings-btn settings-save" onclick="saveApiKey()">Save</button>
+      </div>
+    </div></div>`;
+  }
   return h;
 }
 
@@ -354,6 +539,7 @@ function render(){
   let h=`<div class="tabs"><button class="tab${aT==='daily'?' on':''}" onclick="aT='daily';render()">Today</button><button class="tab${aT==='weekly'?' on':''}" onclick="aT='weekly';render()">Weekly Review</button></div>`;
   h+=aT==='daily'?rD():rW();
   document.getElementById("app").innerHTML=h;
+  if(aT==='daily')loadBriefing();
 }
 
 function goD(o){cD=new Date(cD);cD.setDate(cD.getDate()+o);render()}
@@ -361,8 +547,6 @@ function goTd(){cD=new Date();render()}
 function tog(k){chk[k]=!chk[k];if(!chk[k])delete chk[k];sv();render()}
 function tEx(k){ex[k]=!ex[k];render()}
 function sRf(k,v){rf[k]=v;sv()}
-function tmrwDate(d){let t=new Date(d);t.setDate(t.getDate()+1);return t}
-function ystrDate(d){let t=new Date(d);t.setDate(t.getDate()-1);return t}
 
 let tsx=0,tsy=0;
 document.addEventListener("touchstart",e=>{tsx=e.touches[0].clientX;tsy=e.touches[0].clientY},{passive:true});
